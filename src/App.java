@@ -12,15 +12,8 @@ public class App {
 
         List<DatosArchivo> datos = leerDatos();
 
-        //252
-
-        /*logic.DataManager manager = new logic.DataManager();
-        manager.interpretarDatos(datos);
-        manager.realizarRecorrido();*/
-
         solucion1.Grafo grafo = new solucion1.Grafo(datos);
         grafo.interpretarDatos();
-        //grafo.calcularCaminos();
         grafo.obtenerCaminos();
     }
 
