@@ -15,12 +15,14 @@ public class App {
         solucion1.Grafo grafo = new solucion1.Grafo(datos);
         grafo.interpretarDatos();
         grafo.obtenerCaminos();
+        int total = grafo.calcularTotal();
+        System.out.println(total);
     }
 
     private static List<DatosArchivo> leerDatos() {
         List<DatosArchivo> retorno = new ArrayList<DatosArchivo>();
         try {
-            File file = new File(Paths.get("").toAbsolutePath() + "/src/datos/gdb1.dat");
+            File file = new File(Paths.get("").toAbsolutePath() + "/src/datos/gdb0.dat");
             Scanner myReader = new Scanner(file);
             Boolean empezarExtraccion = false;
             while (myReader.hasNextLine()) {

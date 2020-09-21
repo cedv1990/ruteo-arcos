@@ -2,6 +2,7 @@ package solucion1;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -98,22 +99,45 @@ public class Grafo {
     
     public void obtenerCaminos() {
         Set<Integer> previos = new HashSet<>();
+        List<List<CaminoCalculado>> caminosPlanos;
         List<DatosArchivo> destinos = filtrarPorNumero(this.inicial.getNumero(), previos, true);
 
         for (DatosArchivo destino : destinos) {
             previos = new HashSet<>();
+            caminosPlanos = new ArrayList<>();
+            List<CaminoCalculado> lis = new ArrayList<>();
             List<CaminoCalculado> caminosTemp = new ArrayList<>();
-            recorrerCaminos(destino.getDestino(), destino.getValor(), previos, caminosTemp, true);
-            CaminoCalculado camino = caminosTemp.get(0);
-            this.inicial.agregarCamino(camino);
+            recorrerCaminos(destino.getDestino(), destino.getValor(), previos, caminosTemp, true, caminosPlanos, lis);
+            if (caminosTemp.size() > 0) {
+                CaminoCalculado camino = caminosTemp.get(0);
+                this.inicial.agregarCamino(camino);
+                this.inicial.agregarCaminosPlanosPermitidos(caminosPlanos, 5);
+            }
         }
-
-        previos = null;
     }
 
-    private void recorrerCaminos(int numero, int costo, Set<Integer> previos, List<CaminoCalculado> caminos, boolean derecho) {
+    public int calcularTotal() {
+        int total = 0;
+
+        for (int i = 0; i < this.inicial.getCaminoPlano().size(); i++) {
+            List<CaminoCalculado> lista = this.inicial.getCaminoPlano().get(i);
+            List<Integer> totales = new ArrayList<>();
+            int costo = 0;
+            for (CaminoCalculado caminoCalculado : lista) {
+                
+            }
+        }
+
+        return total;
+    }
+
+    private void recorrerCaminos(int numero, int costo, Set<Integer> previos, List<CaminoCalculado> caminos, boolean derecho, List<List<CaminoCalculado>> caminosPlanos, List<CaminoCalculado> listado) {
         if (numero == 1) {
             caminos.add(new CaminoCalculado(numero, costo, derecho));
+            listado.add(new CaminoCalculado(numero, costo, derecho));
+            if (listado.size() - 1 == previos.size()) {
+                caminosPlanos.add(listado);
+            }
             return;
         }
     
@@ -128,6 +152,7 @@ public class Grafo {
         if (siguientes.size() > 0) {
             caminos.add(camino);
             previos.add(numero);
+            listado.add(new CaminoCalculado(numero, costo, derecho));
         }
 
         for (DatosArchivo siguiente : siguientes) {
@@ -138,12 +163,15 @@ public class Grafo {
             else {
                 num = siguiente.getOrigen();
             }
-            recorrerCaminos(num, siguiente.getValor(), new HashSet(previos), camino.getSubCamino(), derecho);
+            Set<Integer> prevs = new LinkedHashSet<>(previos);
+            
+            recorrerCaminos(num, siguiente.getValor(), prevs, camino.getSubCamino(), derecho, caminosPlanos, new ArrayList<>(listado));
+            
             if (camino.getSubCamino().size() == 0) {
                 caminos.remove(camino);
+                listado.clear();
             }
         }
-        
     }
 
     private List<DatosArchivo> filtrarPorNumero(int numero, Set<Integer> previos, boolean porOrigen) {

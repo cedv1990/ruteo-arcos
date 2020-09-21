@@ -10,12 +10,14 @@ public class Nodo {
     private List<Vertice> anteriores;
 
     private List<CaminoCalculado> caminos;
+    private List<List<CaminoCalculado>> caminoPlano;
 
     public Nodo(int num) {
         this.numero = num;
         this.caminos = new ArrayList<>();
         this.siguientes = new ArrayList<>();
         this.anteriores = new ArrayList<>();
+        this.caminoPlano = new ArrayList<>();
     } 
     
     public int getNumero() {
@@ -32,6 +34,10 @@ public class Nodo {
 
     public List<CaminoCalculado> getCaminos() {
         return caminos;
+    }
+
+    public List<List<CaminoCalculado>> getCaminoPlano() {
+        return caminoPlano;
     }
 
     public void setSiguientes(List<Vertice> siguientes) {
@@ -52,5 +58,13 @@ public class Nodo {
 
     public void agregarAnterior(Vertice anterior) {
         this.anteriores.add(anterior);
+    }
+
+    public void agregarCaminosPlanosPermitidos(List<List<CaminoCalculado>> caminos, int cantidad){
+        for (List<CaminoCalculado> list : caminos) {
+            if (list.size() <= cantidad) {
+                this.caminoPlano.add(list);
+            }
+        }
     }
 }

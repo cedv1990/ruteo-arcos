@@ -6,7 +6,7 @@
  VEHICULOS : 5
  CAPACIDAD : 5
  TIPO_COSTES_ARISTAS : EXPLICITOS
- COSTE_TOTAL_REQ : 252
+ COSTE_TOTAL_REQ : 46
  LISTA_ARISTAS_REQ :
  ( 1, 2)  coste 3 demanda 1
  ( 1, 3)  coste 4 demanda 1
