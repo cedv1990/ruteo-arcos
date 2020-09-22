@@ -2,7 +2,6 @@ package solucion1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -11,13 +10,13 @@ import entities.Datos;
 import entities.DatosArchivo;
 
 public class Archivo {
-    public Datos leerDatos() {
+    public Datos leerDatos(String path) {
         int total = 0;
         Datos retorno = new Datos();
         List<DatosArchivo> listaDatosArchivo = new ArrayList<DatosArchivo>();
         DatosArchivo datosLinea;
         try {
-            File file = new File(Paths.get("").toAbsolutePath() + "/src/datos/gdb1.dat");
+            File file = new File(path);
             Scanner myReader = new Scanner(file);
             Boolean empezarExtraccion = false;
             while (myReader.hasNextLine()) {

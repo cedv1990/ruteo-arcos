@@ -45,6 +45,6 @@ public class CaminoCalculado {
 
     @Override
     public String toString() {
-        return String.format("N: %d", this.numero);
+        return String.format("N: %d, V: %s", this.numero, this.visitado ? "S" : "N");
     }
 }

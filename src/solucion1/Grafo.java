@@ -78,7 +78,17 @@ public class Grafo {
     }
 
     public int calcularTotal() {
-        List<List<CaminoCalculado>> caminosOptimos = new ArrayList<>();
+
+        return this.inicial.getCaminoPlano().stream()
+                                                .map(x -> 
+                                                    x.stream()
+                                                        .mapToInt(CaminoCalculado::getCosto)
+                                                        .sum()
+                                                )
+                                                .mapToInt(Integer::intValue)
+                                                .sum();
+
+        /*List<List<CaminoCalculado>> caminosOptimos = new ArrayList<>();
 
         List<List<CaminoCalculado>> copiaCaminoPlano = new ArrayList<>(this.inicial.getCaminoPlano());
 
@@ -123,7 +133,7 @@ public class Grafo {
                         .sum()
                 )
                 .mapToInt(Integer::intValue)
-                .sum();
+                .sum();*/
     }
 
     private Nodo obtenerNodo(Set<Nodo> nodos, Integer numero) {
@@ -168,6 +178,7 @@ public class Grafo {
         return vertices.stream().filter(x -> x.getAnterior().getNumero() == nodo.getNumero()).collect(Collectors.toList());
     }
 
+    //[CAMBIO] Si no muestra nada en consola, cambiar los System.out por algún objeto que si muestre algo.
     private void imprimir(List<List<CaminoCalculado>> caminosPlanos) {
         int i = 0;
         for (List<CaminoCalculado> camino : caminosPlanos) {

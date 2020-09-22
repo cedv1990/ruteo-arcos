@@ -64,13 +64,29 @@ public class Nodo {
 
     public void agregarCaminosPlanosPermitidos(List<List<CaminoCalculado>> caminos, int cantidad){
         for (List<CaminoCalculado> list : caminos) {
+            List<CaminoCalculado> sinVisitar = list.stream().filter(x -> !x.getVisitado()).collect(Collectors.toList());
             if (
-                list.stream().filter(x -> !x.getVisitado()).collect(Collectors.toList()).size() <= cantidad 
+                this.caminoPlano.size() <= 7
+                &&
+                sinVisitar.size() <= cantidad 
                 //list.size() <= cantidad
                 &&
-                list.size() > 2
+                sinVisitar.size() > 2
             ) {
+                marcarVisitados(caminos, list);
                 this.caminoPlano.add(list);
+            }
+        }
+    }
+
+    private void marcarVisitados(List<List<CaminoCalculado>> caminos, List<CaminoCalculado> list) {
+        for (List<CaminoCalculado> caminoCalculado : caminos) {
+            for (CaminoCalculado porMarcar : list) {
+                for (CaminoCalculado camino : caminoCalculado) {
+                    if (camino.getNumero() == porMarcar.getNumero()) {
+                        camino.setVisitado(true);
+                    }
+                }   
             }
         }
     }
