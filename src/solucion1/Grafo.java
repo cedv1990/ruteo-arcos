@@ -1,6 +1,7 @@
 package solucion1;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -21,48 +22,6 @@ public class Grafo {
 
     public Grafo(List<DatosArchivo> datos) {
         this.datos = datos;
-    }
-
-    public Nodo obtenerNodo(Set<Nodo> nodos, Integer numero) {
-        List<Nodo> filtrados = nodos.stream().filter(x -> x.getNumero() == numero).collect(Collectors.toList());
-        if (filtrados.size() > 0)
-            return filtrados.get(0);
-        return null;
-    }
-
-    public Vertice obtenerVertice(Set<Vertice> vertices, Nodo origen, Nodo destino) {
-        List<Vertice> filtrados =  vertices.stream().filter(x -> 
-            x.getAnterior().getNumero() == origen.getNumero()
-            &&
-            x.getSiguiente().getNumero() == destino.getNumero()
-        ).collect(Collectors.toList());
-        if (filtrados.size() > 0)
-            return filtrados.get(0);
-        return null;
-    }
-
-    public Nodo crearNodo(Set<Nodo> nodos, Integer numero) {
-        Nodo nodo = this.obtenerNodo(nodos, numero);
-        if (nodo == null){
-            nodo = new Nodo(numero);
-        }
-        return nodo;
-    }
-
-    public Vertice crearVertice(Set<Vertice> vertices, Integer costo, Nodo origen, Nodo destino) {
-        Vertice vertice = this.obtenerVertice(vertices, origen, destino);
-        if (vertice == null) {
-            vertice = new Vertice(origen, destino, costo);
-        }
-        return vertice;
-    }
-
-    public List<Vertice> obtenerVerticesDondeEsSiguiente(Set<Vertice> vertices, Nodo nodo) {
-        return vertices.stream().filter(x -> x.getSiguiente().getNumero() == nodo.getNumero()).collect(Collectors.toList());
-    }
-
-    public List<Vertice> obtenerVerticesDondeEsAnterior(Set<Vertice> vertices, Nodo nodo) {
-        return vertices.stream().filter(x -> x.getAnterior().getNumero() == nodo.getNumero()).collect(Collectors.toList());
     }
 
     public void interpretarDatos() {
@@ -114,21 +73,111 @@ public class Grafo {
                 this.inicial.agregarCaminosPlanosPermitidos(caminosPlanos, 5);
             }
         }
+
+        this.imprimir(this.inicial.getCaminoPlano());
     }
 
     public int calcularTotal() {
-        int total = 0;
+        List<List<CaminoCalculado>> caminosOptimos = new ArrayList<>();
 
-        for (int i = 0; i < this.inicial.getCaminoPlano().size(); i++) {
-            List<CaminoCalculado> lista = this.inicial.getCaminoPlano().get(i);
-            List<Integer> totales = new ArrayList<>();
-            int costo = 0;
-            for (CaminoCalculado caminoCalculado : lista) {
-                
-            }
+        List<List<CaminoCalculado>> copiaCaminoPlano = new ArrayList<>(this.inicial.getCaminoPlano());
+
+        List<Integer> totalesCaminosPlanos = calcularTotales(copiaCaminoPlano);
+
+        calcularCaminosOptimos(caminosOptimos, copiaCaminoPlano, totalesCaminosPlanos);
+
+        List<CaminoCalculado> caminos = new ArrayList<>(this.inicial.getCaminos());
+
+        for (List<CaminoCalculado> caminoCalculado : caminosOptimos) {
+            caminos = caminos.stream()
+                        .filter(x ->
+                            x.getNumero() != caminoCalculado.get(0).getNumero()
+                            &&
+                            x.getNumero() != caminoCalculado.get(caminoCalculado.size() - 2).getNumero()
+                        )
+                        .collect(Collectors.toList());
         }
 
-        return total;
+        if (caminos.size() > 0) {
+            copiaCaminoPlano = new ArrayList<>(this.inicial.getCaminoPlano());
+            List<CaminoCalculado> copiaCaminos = new ArrayList<>(caminos);
+
+            copiaCaminoPlano = copiaCaminoPlano.stream()
+                                .filter(x -> 
+                                    copiaCaminos.stream() 
+                                        .anyMatch(y -> y.getNumero() == x.get(0).getNumero())
+                                )
+                                .collect(Collectors.toList());
+
+            totalesCaminosPlanos = calcularTotales(copiaCaminoPlano);
+
+            calcularCaminosOptimos(caminosOptimos, copiaCaminoPlano, totalesCaminosPlanos);
+        }
+
+        //this.imprimir(caminosOptimos);
+
+        return caminosOptimos.stream()
+                .map(x -> 
+                    x.stream()
+                        .mapToInt(CaminoCalculado::getCosto)
+                        .sum()
+                )
+                .mapToInt(Integer::intValue)
+                .sum();
+    }
+
+    private Nodo obtenerNodo(Set<Nodo> nodos, Integer numero) {
+        List<Nodo> filtrados = nodos.stream().filter(x -> x.getNumero() == numero).collect(Collectors.toList());
+        if (filtrados.size() > 0)
+            return filtrados.get(0);
+        return null;
+    }
+
+    private Vertice obtenerVertice(Set<Vertice> vertices, Nodo origen, Nodo destino) {
+        List<Vertice> filtrados =  vertices.stream().filter(x -> 
+            x.getAnterior().getNumero() == origen.getNumero()
+            &&
+            x.getSiguiente().getNumero() == destino.getNumero()
+        ).collect(Collectors.toList());
+        if (filtrados.size() > 0)
+            return filtrados.get(0);
+        return null;
+    }
+
+    private Nodo crearNodo(Set<Nodo> nodos, Integer numero) {
+        Nodo nodo = this.obtenerNodo(nodos, numero);
+        if (nodo == null){
+            nodo = new Nodo(numero);
+        }
+        return nodo;
+    }
+
+    private Vertice crearVertice(Set<Vertice> vertices, Integer costo, Nodo origen, Nodo destino) {
+        Vertice vertice = this.obtenerVertice(vertices, origen, destino);
+        if (vertice == null) {
+            vertice = new Vertice(origen, destino, costo);
+        }
+        return vertice;
+    }
+
+    private List<Vertice> obtenerVerticesDondeEsSiguiente(Set<Vertice> vertices, Nodo nodo) {
+        return vertices.stream().filter(x -> x.getSiguiente().getNumero() == nodo.getNumero()).collect(Collectors.toList());
+    }
+
+    private List<Vertice> obtenerVerticesDondeEsAnterior(Set<Vertice> vertices, Nodo nodo) {
+        return vertices.stream().filter(x -> x.getAnterior().getNumero() == nodo.getNumero()).collect(Collectors.toList());
+    }
+
+    private void imprimir(List<List<CaminoCalculado>> caminosPlanos) {
+        int i = 0;
+        for (List<CaminoCalculado> camino : caminosPlanos) {
+            System.out.printf("Camino %d: \n1, ", i);
+            for (CaminoCalculado paso: camino) {
+                System.out.printf("%d, ", paso.getNumero());
+            }
+            System.out.println();
+            i++;
+        }
     }
 
     private void recorrerCaminos(int numero, int costo, Set<Integer> previos, List<CaminoCalculado> caminos, boolean derecho, List<List<CaminoCalculado>> caminosPlanos, List<CaminoCalculado> listado) {
@@ -185,5 +234,79 @@ public class Grafo {
         return filtrado.collect(Collectors.toList());
     }
 
+    private void calcularCaminosOptimos(List<List<CaminoCalculado>> caminosOptimos, List<List<CaminoCalculado>> copiaCaminoPlano,
+            List<Integer> totalesCaminosPlanos) {
+        int min;
+        int index;
+        List<Integer> indicesEliminar;
+        List<CaminoCalculado> caminoCorto;
+        List<List<CaminoCalculado>> caminoPlanoStack;
+        while(copiaCaminoPlano.size() > 0) {
+            min = totalesCaminosPlanos.stream().min(Integer::compare).get();
     
+            index = totalesCaminosPlanos.indexOf(min);
+            
+            caminoCorto = copiaCaminoPlano.get(index);
+
+            caminoPlanoStack = new ArrayList<>();
+            indicesEliminar = new ArrayList<>();
+
+            for (int i = 0; i < copiaCaminoPlano.size(); i++) {
+                List<CaminoCalculado> x = copiaCaminoPlano.get(i);
+                if (
+                    validarOtroSimilar(caminoCorto, x)
+                ) {
+                    caminoPlanoStack.add(x);
+                }
+                else {
+                    //Los que toca quitar
+                    indicesEliminar.add(i);
+                }
+            }
+
+            Collections.sort(indicesEliminar);
+            Collections.reverse(indicesEliminar);
+
+            for (int indice : indicesEliminar) {
+                totalesCaminosPlanos.remove(indice);
+                copiaCaminoPlano.remove(indice);
+            }
+
+            caminosOptimos.add(caminoCorto);
+        }
+    }
+
+    private boolean validarOtroSimilar(List<CaminoCalculado> caminoCorto, List<CaminoCalculado> x) {
+        List<Integer> copiaCaminoCorto = caminoCorto.stream()
+                                                    .filter(y -> y.getNumero() != 1)
+                                                    .map(CaminoCalculado::getNumero)
+                                                    .collect(Collectors.toList());
+        List<Integer> copiaX = x.stream()
+                                        .filter(y -> y.getNumero() != 1)
+                                        .map(CaminoCalculado::getNumero)
+                                        .collect(Collectors.toList());
+        
+        return  
+                copiaCaminoCorto.get(0) != copiaX.get(0)
+                &&
+                copiaCaminoCorto.get(copiaCaminoCorto.size() - 1) != copiaX.get(copiaX.size() - 1)
+                &&
+                copiaCaminoCorto.get(0) != copiaX.get(copiaX.size() - 1)
+                &&
+                copiaCaminoCorto.get(copiaCaminoCorto.size() - 1) != copiaX.get(0);
+
+        /*Collections.sort(copiaCaminoCorto);
+        Collections.sort(copiaX);
+        return !copiaCaminoCorto.equals(copiaX);*/
+    }
+
+    private List<Integer> calcularTotales(List<List<CaminoCalculado>> caminosPlanos) {
+        return caminosPlanos.stream()
+            .map(x -> 
+                x.stream()
+                    .mapToInt(CaminoCalculado::getCosto)
+                    .sum()
+            )
+            .collect(Collectors.toList());
+    }
 }

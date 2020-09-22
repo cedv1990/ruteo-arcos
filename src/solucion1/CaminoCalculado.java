@@ -9,11 +9,14 @@ public class CaminoCalculado {
     private boolean bajando;
     private List<CaminoCalculado> subCamino;
 
+    private boolean visitado;
+
     public CaminoCalculado(int numero, int costo, boolean bajando) {
         this.numero = numero;
         this.costo = costo;
         this.bajando = bajando;
         this.subCamino = new ArrayList<>();
+        this.visitado = false;
     }
 
     public int getNumero() {
@@ -28,8 +31,16 @@ public class CaminoCalculado {
         return bajando;
     }
 
+    public boolean getVisitado() {
+        return visitado;
+    }
+
     public List<CaminoCalculado> getSubCamino() {
         return subCamino;
+    }
+
+    public void setVisitado(boolean visitado) {
+        this.visitado = visitado;
     }
 
     @Override

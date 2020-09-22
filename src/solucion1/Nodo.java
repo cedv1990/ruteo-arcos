@@ -2,6 +2,8 @@ package solucion1;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class Nodo {
     private int numero;
@@ -62,7 +64,12 @@ public class Nodo {
 
     public void agregarCaminosPlanosPermitidos(List<List<CaminoCalculado>> caminos, int cantidad){
         for (List<CaminoCalculado> list : caminos) {
-            if (list.size() <= cantidad) {
+            if (
+                list.stream().filter(x -> !x.getVisitado()).collect(Collectors.toList()).size() <= cantidad 
+                //list.size() <= cantidad
+                &&
+                list.size() > 2
+            ) {
                 this.caminoPlano.add(list);
             }
         }

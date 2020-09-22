@@ -5,6 +5,11 @@ public class DatosArchivo {
     private Integer destino;
     private Integer valor;
 
+    public Integer extraerTotalEsperado(String lineaTotalEsperado, String nombreProp) {
+        String total = lineaTotalEsperado.replaceAll(String.format("\\s*(%s)\\s*:\\s*", nombreProp), "");
+        return Integer.parseInt(total);
+    }
+
     public void extraerInfoDesdeString(String datos) {
         //( 1, 2)  coste 13 
         String[] secciones = datos.split("coste");
